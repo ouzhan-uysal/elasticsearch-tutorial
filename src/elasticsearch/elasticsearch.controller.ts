@@ -20,27 +20,41 @@ export class ElasticsearchController {
     return this.esService.search(index, query);
   }
 
-  @Get(':index/:position')
-  async searchByPosition(@Param('index') index: string, @Param('position') position: string) {
+  @Get(':index/position/:position')
+  async searchByPosition(
+    @Param('index') index: string,
+    @Param('position') position: string) {
     const query = {
       query: {
         match: {
-          position
+          position,
         }
       }
     };
     return this.esService.search(index, query);
   }
 
-  @Get(':index/:name')
-  async searchByName(@Param('index') index: string, @Param('name') name: string) {
+  @Get(':index/name/:name')
+  async searchByName(
+    @Param('index') index: string,
+    @Param('name') name: string) {
     const query = {
       query: {
         match: {
-          name
+          "personal.name": name,
         }
       }
     };
+    return this.esService.search(index, query);
+  }
+
+  @Post(':index')
+  async customQuerySearch(@Param('index') index: string, @Body() payload: object) {
+    const query = {
+      query: {
+        match: payload
+      }
+    }
     return this.esService.search(index, query);
   }
 }
