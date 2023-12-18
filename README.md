@@ -23,8 +23,53 @@
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
 ## Description
+# Run Elasticsearch with Docker
+version: '0.1'
+services:
+  node01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.3
+    container_name: node01
+    environment:
+      # Specifies the name of a node in the Elasticsearch cluster. This is a parameter that helps nodes recognize each other.
+      - node.name=node01
+      # Specifies the name of the Elasticsearch cluster. All nodes must use the same cluster name.
+      - cluster.name=es-cluster-7
+      # The Elasticsearch node is running in single-node mode. This indicates that there is only one node in the cluster setup.
+      - discovery.type=single-node
+      # Sets up the Elasticsearch JVM configuration.
+      - "ES_JAVA_OPTS=-Xms128m -Xmx128m"
+      # This configuration removes the default password and username.
+      - xpack.security.enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - es-data01:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - es-network
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.3
+    environment:
+      ELASTICSEARCH_HOSTS: http://node01:9200
+    ports:
+      - 5601:5601
+    networks:
+      - es-network
+    depends_on:
+      - node01
+
+volumes:
+  es-data01:
+    driver: local
+
+networks:
+  es-network:
+    driver: bridge
+
 
 ## Installation
 
@@ -57,65 +102,3 @@ $ yarn run test:e2e
 # test coverage
 $ yarn run test:cov
 ```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
-
-
-## Run Elasticsearch with Docker
-version: '0.1'
-services:
-  node01:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.3
-    container_name: node01
-    environment:
-      # Elasticsearch kümesindeki bir düğümün adını belirtir. Bu, düğümlerin birbirlerini tanımasına yardımcı olan bir parametredir.
-      - node.name=node01
-      # Elasticsearch kümesinin adını belirtir. Tüm düğümler aynı küme adını kullanmalıdır.
-      - cluster.name=es-cluster-7
-      # Elasticsearch düğümü tek düğüm modunda çalıştırılır. Bu, küme kurulumunda yalnızca bir düğüm olduğunu gösterir.
-      - discovery.type=single-node
-      # Elasticsearch JVM yapılandırmasını ayarlar.
-      - "ES_JAVA_OPTS=-Xms128m -Xmx128m"
-      # Bu  yapılandırma , default şifre ve kullanıcı adını kaldırır
-      - xpack.security.enabled=false
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - es-data01:/usr/share/elasticsearch/data
-    ports:
-      - 9200:9200
-    networks:
-      - es-network
-
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.11.3
-    environment:
-      ELASTICSEARCH_HOSTS: http://node01:9200
-    ports:
-      - 5601:5601
-    networks:
-      - es-network
-    depends_on:
-      - node01
-
-volumes:
-  es-data01:
-    driver: local
-
-networks:
-  es-network:
-    driver: bridge
