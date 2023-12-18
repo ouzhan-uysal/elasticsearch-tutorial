@@ -19,4 +19,28 @@ export class ElasticsearchController {
     };
     return this.esService.search(index, query);
   }
+
+  @Get(':index/:position')
+  async searchByPosition(@Param('index') index: string, @Param('position') position: string) {
+    const query = {
+      query: {
+        match: {
+          position
+        }
+      }
+    };
+    return this.esService.search(index, query);
+  }
+
+  @Get(':index/:name')
+  async searchByName(@Param('index') index: string, @Param('name') name: string) {
+    const query = {
+      query: {
+        match: {
+          name
+        }
+      }
+    };
+    return this.esService.search(index, query);
+  }
 }
